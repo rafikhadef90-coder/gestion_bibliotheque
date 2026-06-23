@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.chart.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controllers.DashboardController"
+      spacing="20" styleClass="content-area">
+    <Insets top="15" left="15" right="15" bottom="15"/>
+
+    <Label text="📊 Tableau de bord" styleClass="section-title"/>
+
+    <!-- Cartes statistiques -->
+    <HBox spacing="15">
+
+        <VBox styleClass="stat-card" prefWidth="200" prefHeight="100" alignment="CENTER" spacing="5">
+            <Label text="📚 Total Livres" styleClass="stat-label"/>
+            <Label fx:id="lblTotalLivres" text="0" styleClass="stat-value"/>
+            <ProgressBar fx:id="pbLivres" prefWidth="160" prefHeight="10"/>
+        </VBox>
+
+        <VBox styleClass="stat-card" prefWidth="200" prefHeight="100" alignment="CENTER" spacing="5">
+            <Label text="✅ Disponibles" styleClass="stat-label"/>
+            <Label fx:id="lblDisponibles" text="0" styleClass="stat-value-success"/>
+            <ProgressBar fx:id="pbDisponibles" prefWidth="160" prefHeight="10" styleClass="pb-success"/>
+        </VBox>
+
+        <VBox styleClass="stat-card" prefWidth="200" prefHeight="100" alignment="CENTER" spacing="5">
+            <Label text="🔖 Emprunts actifs" styleClass="stat-label"/>
+            <Label fx:id="lblEmpruntsActifs" text="0" styleClass="stat-value-warning"/>
+            <ProgressBar fx:id="pbEmprunts" prefWidth="160" prefHeight="10" styleClass="pb-warning"/>
+        </VBox>
+
+        <VBox styleClass="stat-card" prefWidth="200" prefHeight="100" alignment="CENTER" spacing="5">
+            <Label text="⚠️ En retard" styleClass="stat-label"/>
+            <Label fx:id="lblEnRetard" text="0" styleClass="stat-value-danger"/>
+            <ProgressBar fx:id="pbRetard" prefWidth="160" prefHeight="10" styleClass="pb-danger"/>
+        </VBox>
+
+        <VBox styleClass="stat-card" prefWidth="200" prefHeight="100" alignment="CENTER" spacing="5">
+            <Label text="💰 Amendes dues" styleClass="stat-label"/>
+            <Label fx:id="lblAmendes" text="0 DH" styleClass="stat-value"/>
+            <ProgressBar fx:id="pbAmendes" prefWidth="160" prefHeight="10"/>
+        </VBox>
+    </HBox>
+
+    <!-- Graphiques -->
+    <HBox spacing="15" VBox.vgrow="ALWAYS">
+
+        <!-- PieChart : répartition par catégorie -->
+        <VBox styleClass="chart-card" HBox.hgrow="ALWAYS" spacing="5">
+            <Label text="Répartition par catégorie" styleClass="chart-title"/>
+            <PieChart fx:id="pieCategories" VBox.vgrow="ALWAYS"
+                      prefHeight="280" animated="true" legendVisible="true"/>
+        </VBox>
+
+        <!-- BarChart : emprunts par mois -->
+        <VBox styleClass="chart-card" HBox.hgrow="ALWAYS" spacing="5">
+            <Label text="Emprunts par mois" styleClass="chart-title"/>
+            <BarChart fx:id="barEmprunts" VBox.vgrow="ALWAYS" prefHeight="280" animated="true">
+                <xAxis>
+                    <CategoryAxis label="Mois"/>
+                </xAxis>
+                <yAxis>
+                    <NumberAxis label="Nombre" minorTickVisible="false"/>
+                </yAxis>
+            </BarChart>
+        </VBox>
+    </HBox>
+
+    <!-- Top 5 livres les plus empruntés -->
+    <HBox spacing="15">
+
+        <VBox spacing="5" HBox.hgrow="ALWAYS">
+            <Label text="🏆 Top 5 livres les plus empruntés" styleClass="sub-title"/>
+            <TableView fx:id="tableTopLivres" prefHeight="180">
+                <columns>
+                    <TableColumn fx:id="colRang"    text="#"       prefWidth="40"/>
+                    <TableColumn fx:id="colTitre"   text="Titre"   prefWidth="250"/>
+                    <TableColumn fx:id="colAuteur"  text="Auteur"  prefWidth="150"/>
+                    <TableColumn fx:id="colNbEmprunts" text="Emprunts" prefWidth="90"/>
+                </columns>
+                <placeholder><Label text="Aucune donnée"/></placeholder>
+            </TableView>
+        </VBox>
+
+        <!-- Activité récente -->
+        <VBox spacing="5" prefWidth="280">
+            <Label text="🕐 Activité récente" styleClass="sub-title"/>
+            <ListView fx:id="listActiviteRecente" prefHeight="180">
+                <tooltip><Tooltip text="Dernières opérations effectuées"/></tooltip>
+            </ListView>
+        </VBox>
+    </HBox>
+
+    <!-- Bouton rafraîchir -->
+    <HBox alignment="CENTER_RIGHT">
+        <Button text="🔄 Rafraîchir les statistiques" styleClass="btn-primary"
+                onAction="#rafraichir">
+            <tooltip><Tooltip text="Recharger toutes les statistiques"/></tooltip>
+        </Button>
+    </HBox>
+</VBox>

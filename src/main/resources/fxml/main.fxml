@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controllers.MainController"
+            prefWidth="1100" prefHeight="750"
+            stylesheets="@../css/style.css">
+
+    <!-- Menu Bar -->
+    <top>
+        <MenuBar>
+            <Menu text="Fichier">
+                <MenuItem text="Exporter CSV" onAction="#exporterCSV"/>
+                <SeparatorMenuItem/>
+                <MenuItem text="Quitter" onAction="#quitter"/>
+            </Menu>
+            <Menu text="Gestion">
+                <MenuItem text="Livres" onAction="#ouvrirLivres"/>
+                <MenuItem text="Emprunts" onAction="#ouvrirEmprunts"/>
+            </Menu>
+            <Menu text="Statistiques">
+                <MenuItem text="Tableau de bord" onAction="#ouvrirDashboard"/>
+            </Menu>
+            <Menu text="Aide">
+                <MenuItem text="À propos" onAction="#apropos"/>
+            </Menu>
+        </MenuBar>
+    </top>
+
+    <!-- Sidebar gauche -->
+    <left>
+        <VBox styleClass="sidebar" spacing="8" prefWidth="210">
+            <Insets top="20" left="10" right="10" bottom="20"/>
+            <Label text="📚 BIBLIOTHÈQUE" styleClass="sidebar-title"/>
+            <Separator/>
+            <Button text="📊 Tableau de bord" styleClass="nav-btn"
+                    onAction="#ouvrirDashboard" maxWidth="Infinity"/>
+            <Button text="📖 Livres" styleClass="nav-btn"
+                    onAction="#ouvrirLivres" maxWidth="Infinity"/>
+            <Button text="🔖 Emprunts" styleClass="nav-btn"
+                    onAction="#ouvrirEmprunts" maxWidth="Infinity"/>
+            <Separator/>
+            <Button text="📤 Exporter CSV" styleClass="nav-btn-secondary"
+                    onAction="#exporterCSV" maxWidth="Infinity"/>
+        </VBox>
+    </left>
+
+    <!-- Zone centrale dynamique -->
+    <center>
+        <StackPane fx:id="mainContent">
+            <fx:include fx:id="livresView" source="livres.fxml"/>
+        </StackPane>
+    </center>
+
+    <!-- Barre de statut -->
+    <bottom>
+        <HBox styleClass="status-bar" spacing="15" alignment="CENTER_LEFT">
+            <Insets top="5" left="15" right="15" bottom="5"/>
+            <Label fx:id="lblStatut" text="✅ Connecté à la base de données"/>
+            <Separator orientation="VERTICAL"/>
+            <Label fx:id="lblDateHeure" text=""/>
+        </HBox>
+    </bottom>
+</BorderPane>

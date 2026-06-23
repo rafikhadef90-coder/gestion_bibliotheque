@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controllers.EmpruntController"
+      spacing="12" styleClass="content-area">
+    <Insets top="15" left="15" right="15" bottom="15"/>
+
+    <!-- Titre -->
+    <HBox alignment="CENTER_LEFT" spacing="15">
+        <Label text="🔖 Gestion des Emprunts" styleClass="section-title"/>
+        <ProgressIndicator fx:id="loadingIndicator" prefWidth="24" prefHeight="24" visible="false"/>
+    </HBox>
+
+    <!-- Barre recherche + filtres -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <TextField fx:id="searchField" promptText="🔍 Rechercher par membre ou livre..."
+                   prefWidth="260" onKeyReleased="#onSearch">
+            <tooltip><Tooltip text="Recherche par nom de membre ou titre du livre"/></tooltip>
+        </TextField>
+        <ComboBox fx:id="filterStatut" promptText="Statut..." prefWidth="140" onAction="#onSearch"/>
+        <DatePicker fx:id="filterDateDebut" promptText="Date début">
+            <tooltip><Tooltip text="Filtrer à partir de cette date"/></tooltip>
+        </DatePicker>
+        <DatePicker fx:id="filterDateFin" promptText="Date fin"/>
+        <Button text="🔄 Réinitialiser" styleClass="btn-secondary" onAction="#resetFiltres"/>
+    </HBox>
+
+    <!-- Accordion formulaire emprunt -->
+    <Accordion>
+        <TitledPane fx:id="formPane" text="➕ Ajouter / Modifier un emprunt" expanded="false">
+            <GridPane hgap="15" vgap="10">
+                <Insets top="12" left="12" right="12" bottom="12"/>
+
+                <!-- Ligne 1 : Livre + Membre -->
+                <Label text="Livre *" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                <ComboBox fx:id="cmbLivre" promptText="Choisir un livre..."
+                          prefWidth="250" GridPane.rowIndex="0" GridPane.columnIndex="1">
+                    <tooltip><Tooltip text="Sélectionnez le livre emprunté"/></tooltip>
+                </ComboBox>
+
+                <Label text="Membre *" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+                <TextField fx:id="txtMembre" promptText="Nom du membre"
+                           prefWidth="200" GridPane.rowIndex="0" GridPane.columnIndex="3">
+                    <tooltip><Tooltip text="Nom et prénom du membre"/></tooltip>
+                </TextField>
+
+                <!-- Ligne 2 : Date emprunt + Date retour prévue -->
+                <Label text="Date emprunt *" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                <DatePicker fx:id="dateEmprunt"
+                            GridPane.rowIndex="1" GridPane.columnIndex="1">
+                    <tooltip><Tooltip text="Date de l'emprunt"/></tooltip>
+                </DatePicker>
+
+                <Label text="Retour prévu *" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+                <DatePicker fx:id="dateRetourPrevu"
+                            GridPane.rowIndex="1" GridPane.columnIndex="3">
+                    <tooltip><Tooltip text="Date de retour prévue"/></tooltip>
+                </DatePicker>
+
+                <!-- Ligne 3 : Date retour réel + Statut -->
+                <Label text="Retour réel" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                <DatePicker fx:id="dateRetourReel"
+                            GridPane.rowIndex="2" GridPane.columnIndex="1">
+                    <tooltip><Tooltip text="Date réelle de retour (laisser vide si non rendu)"/></tooltip>
+                </DatePicker>
+
+                <Label text="Statut" GridPane.rowIndex="2" GridPane.columnIndex="2"/>
+                <ComboBox fx:id="cmbStatut" prefWidth="180"
+                          GridPane.rowIndex="2" GridPane.columnIndex="3"/>
+
+                <!-- Ligne 4 : Durée (slider) + Rendu (checkbox) -->
+                <Label text="Durée (jours)" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                <Slider fx:id="sliderDuree" min="1" max="60" value="14"
+                        showTickLabels="true" showTickMarks="true"
+                        blockIncrement="7" prefWidth="200"
+                        GridPane.rowIndex="3" GridPane.columnIndex="1">
+                    <tooltip><Tooltip text="Durée d'emprunt en jours"/></tooltip>
+                </Slider>
+
+                <Label text="Rendu" GridPane.rowIndex="3" GridPane.columnIndex="2"/>
+                <HBox spacing="15" GridPane.rowIndex="3" GridPane.columnIndex="3">
+                    <RadioButton fx:id="radioRenduOui" text="Oui"/>
+                    <RadioButton fx:id="radioRenduNon" text="Non"/>
+                </HBox>
+
+                <!-- Ligne 5 : Nombre de renouvellements + Amende -->
+                <Label text="Renouvellements" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                <Spinner fx:id="spinnerRenouvellement" min="0" max="5" initialValue="0"
+                         prefWidth="120" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+                <Label text="Amende (DH)" GridPane.rowIndex="4" GridPane.columnIndex="2"/>
+                <Spinner fx:id="spinnerAmende" min="0" max="500" initialValue="0"
+                         prefWidth="120" GridPane.rowIndex="4" GridPane.columnIndex="3"/>
+
+                <Label text="Payé" GridPane.rowIndex="4" GridPane.columnIndex="2"
+                       GridPane.rowSpan="1"/>
+                <CheckBox fx:id="checkPaye" text="Amende payée"
+                          GridPane.rowIndex="5" GridPane.columnIndex="3"/>
+
+                <!-- Ligne 6 : Remarques -->
+                <Label text="Remarques" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+                <TextArea fx:id="txtRemarques" prefRowCount="3" wrapText="true"
+                          prefWidth="580"
+                          GridPane.rowIndex="6" GridPane.columnIndex="1"
+                          GridPane.columnSpan="3"/>
+
+                <!-- Boutons -->
+                <HBox spacing="10" GridPane.rowIndex="7" GridPane.columnIndex="1"
+                      GridPane.columnSpan="3">
+                    <Button text="💾 Enregistrer" styleClass="btn-primary" onAction="#saveEmprunt"/>
+                    <Button text="✅ Marquer Rendu" styleClass="btn-success" onAction="#marquerRendu"/>
+                    <Button text="🗑 Supprimer" styleClass="btn-danger" onAction="#deleteEmprunt"/>
+                    <Button text="📤 Exporter CSV" styleClass="btn-secondary" onAction="#exporterCSV"/>
+                    <Button text="🔄 Vider" styleClass="btn-secondary" onAction="#clearForm"/>
+                </HBox>
+            </GridPane>
+        </TitledPane>
+    </Accordion>
+
+    <!-- ListView des emprunts en cours -->
+    <HBox spacing="15" VBox.vgrow="ALWAYS">
+
+        <!-- Liste emprunts en cours -->
+        <VBox spacing="5" prefWidth="280">
+            <Label text="📋 Emprunts en cours" styleClass="sub-title"/>
+            <ListView fx:id="listEmpruntsEnCours" VBox.vgrow="ALWAYS">
+                <tooltip><Tooltip text="Emprunts actuellement actifs"/></tooltip>
+            </ListView>
+        </VBox>
+
+        <!-- TableView principale -->
+        <TableView fx:id="tableEmprunts" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS">
+            <columns>
+                <TableColumn fx:id="colId"            text="ID"             prefWidth="50"/>
+                <TableColumn fx:id="colLivreTitre"    text="Livre"          prefWidth="180"/>
+                <TableColumn fx:id="colMembre"        text="Membre"         prefWidth="150"/>
+                <TableColumn fx:id="colDateEmprunt"   text="Date emprunt"   prefWidth="120"/>
+                <TableColumn fx:id="colDateRetour"    text="Retour prévu"   prefWidth="120"/>
+                <TableColumn fx:id="colDateReel"      text="Retour réel"    prefWidth="120"/>
+                <TableColumn fx:id="colStatut"        text="Statut"         prefWidth="100"/>
+                <TableColumn fx:id="colAmende"        text="Amende (DH)"    prefWidth="100"/>
+                <TableColumn fx:id="colPaye"          text="Payé"           prefWidth="70"/>
+            </columns>
+            <placeholder>
+                <Label text="Aucun emprunt trouvé"/>
+            </placeholder>
+        </TableView>
+    </HBox>
+
+    <!-- Barre de progression des retours -->
+    <HBox spacing="20" alignment="CENTER_LEFT">
+        <Label text="Taux de retour :"/>
+        <ProgressBar fx:id="progressRetour" prefWidth="180" prefHeight="16"/>
+        <Label fx:id="lblTauxRetour" text="0%"/>
+        <Separator orientation="VERTICAL"/>
+        <Label fx:id="lblTotalEmprunts" text="Total : 0 emprunts"/>
+        <Label fx:id="lblEnRetard" text="En retard : 0" styleClass="label-danger"/>
+    </HBox>
+</VBox>

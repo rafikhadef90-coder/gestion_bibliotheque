@@ -1,0 +1,585 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controllers.LivreController"
+      spacing="12" styleClass="content-area">
+    <Insets top="15" left="15" right="15" bottom="15"/>
+
+    <!-- Titre -->
+    <HBox alignment="CENTER_LEFT" spacing="15">
+        <Label text="📖 Gestion des Livres" styleClass="section-title"/>
+        <ProgressIndicator fx:id="loadingIndicator" prefWidth="24" prefHeight="24" visible="false"/>
+    </HBox>
+
+    <!-- Barre recherche + filtres -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <TextField fx:id="searchField" promptText="🔍 Rechercher un livre..."
+                   prefWidth="250" onKeyReleased="#onSearch">
+            <tooltip><Tooltip text="Recherche par titre, auteur ou ISBN"/></tooltip>
+        </TextField>
+        <ComboBox fx:id="filterCategorie" promptText="Catégorie..." prefWidth="150" onAction="#onSearch"/>
+        <ComboBox fx:id="filterDisponible" promptText="Disponibilité..." prefWidth="150" onAction="#onSearch"/>
+        <Button text="🔄 Réinitialiser" styleClass="btn-secondary" onAction="#resetFiltres"/>
+    </HBox>
+
+    <!-- Accordion formulaire -->
+    <Accordion>
+        <TitledPane fx:id="formPane" text="➕ Ajouter / Modifier un livre" expanded="false">
+            <GridPane hgap="15" vgap="10">
+                <Insets top="12" left="12" right="12" bottom="12"/>
+
+                <!-- Ligne 1 : ISBN + Titre -->
+                <Label text="ISBN *" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                <TextField fx:id="txtISBN" promptText="Ex: 978-2-07-036024-5"
+                           GridPane.rowIndex="0" GridPane.columnIndex="1" prefWidth="200">
+                    <tooltip><Tooltip text="Code ISBN unique du livre"/></tooltip>
+                </TextField>
+
+                <Label text="Titre *" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+                <TextField fx:id="txtTitre" promptText="Titre du livre"
+                           GridPane.rowIndex="0" GridPane.columnIndex="3" prefWidth="200">
+                    <tooltip><Tooltip text="Titre complet du livre"/></tooltip>
+                </TextField>
+
+                <!-- Ligne 2 : Auteur + Éditeur -->
+                <Label text="Auteur *" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                <TextField fx:id="txtAuteur" promptText="Nom de l'auteur"
+                           GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                <Label text="Éditeur" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+                <TextField fx:id="txtEditeur" promptText="Maison d'édition"
+                           GridPane.rowIndex="1" GridPane.columnIndex="3"/>
+
+                <!-- Ligne 3 : Catégorie + Année -->
+                <Label text="Catégorie" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                <ComboBox fx:id="cmbCategorie" prefWidth="200"
+                          GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                <Label text="Année parution" GridPane.rowIndex="2" GridPane.columnIndex="2"/>
+                <Spinner fx:id="spinnerAnnee" min="1800" max="2025" initialValue="2020"
+                         prefWidth="120" GridPane.rowIndex="2" GridPane.columnIndex="3">
+                    <tooltip><Tooltip text="Année de parution du livre"/></tooltip>
+                </Spinner>
+
+                <!-- Ligne 4 : Nombre d'exemplaires + Disponible -->
+                <Label text="Exemplaires" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                <Spinner fx:id="spinnerExemplaires" min="1" max="50" initialValue="1"
+                         prefWidth="120" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                <Label text="Note (1-5)" GridPane.rowIndex="3" GridPane.columnIndex="2"/>
+                <Slider fx:id="sliderNote" min="1" max="5" value="3"
+                        showTickLabels="true" showTickMarks="true"
+                        snapToTicks="true" blockIncrement="1"
+                        prefWidth="160" GridPane.rowIndex="3" GridPane.columnIndex="3">
+                    <tooltip><Tooltip text="Note du livre de 1 à 5"/></tooltip>
+                </Slider>
+
+                <!-- Ligne 5 : Disponible (RadioButtons) -->
+                <Label text="Disponible" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                <HBox spacing="15" GridPane.rowIndex="4" GridPane.columnIndex="1">
+                    <RadioButton fx:id="radioOui" text="Oui"/>
+                    <RadioButton fx:id="radioNon" text="Non"/>
+                </HBox>
+
+                <Label text="Numérique" GridPane.rowIndex="4" GridPane.columnIndex="2"/>
+                <CheckBox fx:id="checkNumerique" text="Version numérique disponible"
+                          GridPane.rowIndex="4" GridPane.columnIndex="3"/>
+
+                <!-- Ligne 6 : Description -->
+                <Label text="Description" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                <TextArea fx:id="txtDescription" prefRowCount="3" wrapText="true"
+                          prefWidth="580"
+                          GridPane.rowIndex="5" GridPane.columnIndex="1"
+                          GridPane.columnSpan="3"/>
+
+                <!-- Ligne 7 : Date d'ajout + Couleur -->
+                <Label text="Date d'ajout" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+                <DatePicker fx:id="datePicker"
+                            GridPane.rowIndex="6" GridPane.columnIndex="1">
+                    <tooltip><Tooltip text="Date d'ajout à la bibliothèque"/></tooltip>
+                </DatePicker>
+
+                <Label text="Couleur étiquette" GridPane.rowIndex="6" GridPane.columnIndex="2"/>
+                <ColorPicker fx:id="colorPicker"
+                             GridPane.rowIndex="6" GridPane.columnIndex="3"/>
+
+                <!-- Boutons action -->
+                <HBox spacing="10" GridPane.rowIndex="7" GridPane.columnIndex="1"
+                      GridPane.columnSpan="3">
+                    <Button text="💾 Enregistrer" styleClass="btn-primary" onAction="#saveLivre"/>
+                    <Button text="🗑 Supprimer" styleClass="btn-danger" onAction="#deleteLivre"/>
+                    <Button text="📤 Importer CSV" styleClass="btn-secondary" onAction="#importerCSV"/>
+                    <Button text="🔄 Vider" styleClass="btn-secondary" onAction="#clearForm"/>
+                </HBox>
+            </GridPane>
+        </TitledPane>
+    </Accordion>
+
+    <!-- TableView livres -->
+    <TableView fx:id="tableLivres" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colISBN"        text="ISBN"         prefWidth="150"/>
+            <TableColumn fx:id="colTitre"       text="Titre"        prefWidth="200"/>
+            <TableColumn fx:id="colAuteur"      text="Auteur"       prefWidth="150"/>
+            <TableColumn fx:id="colCategorie"   text="Catégorie"    prefWidth="110"/>
+            <TableColumn fx:id="colAnnee"       text="Année"        prefWidth="70"/>
+            <TableColumn fx:id="colExemplaires" text="Exemplaires"  prefWidth="100"/>
+            <TableColumn fx:id="colNote"        text="Note"         prefWidth="70"/>
+            <TableColumn fx:id="colDispo"       text="Disponible"   prefWidth="90"/>
+        </columns>
+        <placeholder>
+            <Label text="Aucun livre trouvé"/>
+        </placeholder>
+    </TableView>
+
+    <!-- Barre inférieure : stats rapides -->
+    <HBox spacing="20" alignment="CENTER_LEFT">
+        <Label text="Taux de disponibilité :"/>
+        <ProgressBar fx:id="progressDispo" prefWidth="180" prefHeight="16"/>
+        <Label fx:id="lblTauxDispo" text="0%"/>
+        <Separator orientation="VERTICAL"/>
+        <Label fx:id="lblTotalLivres" text="Total : 0 livres"/>
+        <Label fx:id="lblTotalDispo" text="Disponibles : 0"/>
+    </HBox>
+</VBox><?xml version="1.0" encoding="UTF-8"?>
+        <?import javafx.scene.layout.*?>
+        <?import javafx.scene.control.*?>
+        <?import javafx.geometry.Insets?>
+
+<VBox xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controllers.LivreController"
+      spacing="12" styleClass="content-area">
+<Insets top="15" left="15" right="15" bottom="15"/>
+
+<!-- Titre -->
+<HBox alignment="CENTER_LEFT" spacing="15">
+    <Label text="📖 Gestion des Livres" styleClass="section-title"/>
+    <ProgressIndicator fx:id="loadingIndicator" prefWidth="24" prefHeight="24" visible="false"/>
+</HBox>
+
+<!-- Barre recherche + filtres -->
+<HBox spacing="10" alignment="CENTER_LEFT">
+    <TextField fx:id="searchField" promptText="🔍 Rechercher un livre..."
+               prefWidth="250" onKeyReleased="#onSearch">
+        <tooltip><Tooltip text="Recherche par titre, auteur ou ISBN"/></tooltip>
+    </TextField>
+    <ComboBox fx:id="filterCategorie" promptText="Catégorie..." prefWidth="150" onAction="#onSearch"/>
+    <ComboBox fx:id="filterDisponible" promptText="Disponibilité..." prefWidth="150" onAction="#onSearch"/>
+    <Button text="🔄 Réinitialiser" styleClass="btn-secondary" onAction="#resetFiltres"/>
+</HBox>
+
+<!-- Accordion formulaire -->
+<Accordion>
+    <TitledPane fx:id="formPane" text="➕ Ajouter / Modifier un livre" expanded="false">
+        <GridPane hgap="15" vgap="10">
+            <Insets top="12" left="12" right="12" bottom="12"/>
+
+            <!-- Ligne 1 : ISBN + Titre -->
+            <Label text="ISBN *" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+            <TextField fx:id="txtISBN" promptText="Ex: 978-2-07-036024-5"
+                       GridPane.rowIndex="0" GridPane.columnIndex="1" prefWidth="200">
+                <tooltip><Tooltip text="Code ISBN unique du livre"/></tooltip>
+            </TextField>
+
+            <Label text="Titre *" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+            <TextField fx:id="txtTitre" promptText="Titre du livre"
+                       GridPane.rowIndex="0" GridPane.columnIndex="3" prefWidth="200">
+                <tooltip><Tooltip text="Titre complet du livre"/></tooltip>
+            </TextField>
+
+            <!-- Ligne 2 : Auteur + Éditeur -->
+            <Label text="Auteur *" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+            <TextField fx:id="txtAuteur" promptText="Nom de l'auteur"
+                       GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+            <Label text="Éditeur" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+            <TextField fx:id="txtEditeur" promptText="Maison d'édition"
+                       GridPane.rowIndex="1" GridPane.columnIndex="3"/>
+
+            <!-- Ligne 3 : Catégorie + Année -->
+            <Label text="Catégorie" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+            <ComboBox fx:id="cmbCategorie" prefWidth="200"
+                      GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+            <Label text="Année parution" GridPane.rowIndex="2" GridPane.columnIndex="2"/>
+            <Spinner fx:id="spinnerAnnee" min="1800" max="2025" initialValue="2020"
+                     prefWidth="120" GridPane.rowIndex="2" GridPane.columnIndex="3">
+                <tooltip><Tooltip text="Année de parution du livre"/></tooltip>
+            </Spinner>
+
+            <!-- Ligne 4 : Nombre d'exemplaires + Disponible -->
+            <Label text="Exemplaires" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+            <Spinner fx:id="spinnerExemplaires" min="1" max="50" initialValue="1"
+                     prefWidth="120" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+            <Label text="Note (1-5)" GridPane.rowIndex="3" GridPane.columnIndex="2"/>
+            <Slider fx:id="sliderNote" min="1" max="5" value="3"
+                    showTickLabels="true" showTickMarks="true"
+                    snapToTicks="true" blockIncrement="1"
+                    prefWidth="160" GridPane.rowIndex="3" GridPane.columnIndex="3">
+                <tooltip><Tooltip text="Note du livre de 1 à 5"/></tooltip>
+            </Slider>
+
+            <!-- Ligne 5 : Disponible (RadioButtons) -->
+            <Label text="Disponible" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+            <HBox spacing="15" GridPane.rowIndex="4" GridPane.columnIndex="1">
+                <RadioButton fx:id="radioOui" text="Oui"/>
+                <RadioButton fx:id="radioNon" text="Non"/>
+            </HBox>
+
+            <Label text="Numérique" GridPane.rowIndex="4" GridPane.columnIndex="2"/>
+            <CheckBox fx:id="checkNumerique" text="Version numérique disponible"
+                      GridPane.rowIndex="4" GridPane.columnIndex="3"/>
+
+            <!-- Ligne 6 : Description -->
+            <Label text="Description" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+            <TextArea fx:id="txtDescription" prefRowCount="3" wrapText="true"
+                      prefWidth="580"
+                      GridPane.rowIndex="5" GridPane.columnIndex="1"
+                      GridPane.columnSpan="3"/>
+
+            <!-- Ligne 7 : Date d'ajout + Couleur -->
+            <Label text="Date d'ajout" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+            <DatePicker fx:id="datePicker"
+                        GridPane.rowIndex="6" GridPane.columnIndex="1">
+                <tooltip><Tooltip text="Date d'ajout à la bibliothèque"/></tooltip>
+            </DatePicker>
+
+            <Label text="Couleur étiquette" GridPane.rowIndex="6" GridPane.columnIndex="2"/>
+            <ColorPicker fx:id="colorPicker"
+                         GridPane.rowIndex="6" GridPane.columnIndex="3"/>
+
+            <!-- Boutons action -->
+            <HBox spacing="10" GridPane.rowIndex="7" GridPane.columnIndex="1"
+                  GridPane.columnSpan="3">
+                <Button text="💾 Enregistrer" styleClass="btn-primary" onAction="#saveLivre"/>
+                <Button text="🗑 Supprimer" styleClass="btn-danger" onAction="#deleteLivre"/>
+                <Button text="📤 Importer CSV" styleClass="btn-secondary" onAction="#importerCSV"/>
+                <Button text="🔄 Vider" styleClass="btn-secondary" onAction="#clearForm"/>
+            </HBox>
+        </GridPane>
+    </TitledPane>
+</Accordion>
+
+<!-- TableView livres -->
+<TableView fx:id="tableLivres" VBox.vgrow="ALWAYS">
+    <columns>
+        <TableColumn fx:id="colISBN"        text="ISBN"         prefWidth="150"/>
+        <TableColumn fx:id="colTitre"       text="Titre"        prefWidth="200"/>
+        <TableColumn fx:id="colAuteur"      text="Auteur"       prefWidth="150"/>
+        <TableColumn fx:id="colCategorie"   text="Catégorie"    prefWidth="110"/>
+        <TableColumn fx:id="colAnnee"       text="Année"        prefWidth="70"/>
+        <TableColumn fx:id="colExemplaires" text="Exemplaires"  prefWidth="100"/>
+        <TableColumn fx:id="colNote"        text="Note"         prefWidth="70"/>
+        <TableColumn fx:id="colDispo"       text="Disponible"   prefWidth="90"/>
+    </columns>
+    <placeholder>
+        <Label text="Aucun livre trouvé"/>
+    </placeholder>
+</TableView>
+
+<!-- Barre inférieure : stats rapides -->
+<HBox spacing="20" alignment="CENTER_LEFT">
+    <Label text="Taux de disponibilité :"/>
+    <ProgressBar fx:id="progressDispo" prefWidth="180" prefHeight="16"/>
+    <Label fx:id="lblTauxDispo" text="0%"/>
+    <Separator orientation="VERTICAL"/>
+    <Label fx:id="lblTotalLivres" text="Total : 0 livres"/>
+    <Label fx:id="lblTotalDispo" text="Disponibles : 0"/>
+</HBox>
+</VBox><?xml version="1.0" encoding="UTF-8"?>
+        <?import javafx.scene.layout.*?>
+        <?import javafx.scene.control.*?>
+        <?import javafx.geometry.Insets?>
+
+<VBox xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controllers.LivreController"
+      spacing="12" styleClass="content-area">
+<Insets top="15" left="15" right="15" bottom="15"/>
+
+<!-- Titre -->
+<HBox alignment="CENTER_LEFT" spacing="15">
+    <Label text="📖 Gestion des Livres" styleClass="section-title"/>
+    <ProgressIndicator fx:id="loadingIndicator" prefWidth="24" prefHeight="24" visible="false"/>
+</HBox>
+
+<!-- Barre recherche + filtres -->
+<HBox spacing="10" alignment="CENTER_LEFT">
+    <TextField fx:id="searchField" promptText="🔍 Rechercher un livre..."
+               prefWidth="250" onKeyReleased="#onSearch">
+        <tooltip><Tooltip text="Recherche par titre, auteur ou ISBN"/></tooltip>
+    </TextField>
+    <ComboBox fx:id="filterCategorie" promptText="Catégorie..." prefWidth="150" onAction="#onSearch"/>
+    <ComboBox fx:id="filterDisponible" promptText="Disponibilité..." prefWidth="150" onAction="#onSearch"/>
+    <Button text="🔄 Réinitialiser" styleClass="btn-secondary" onAction="#resetFiltres"/>
+</HBox>
+
+<!-- Accordion formulaire -->
+<Accordion>
+    <TitledPane fx:id="formPane" text="➕ Ajouter / Modifier un livre" expanded="false">
+        <GridPane hgap="15" vgap="10">
+            <Insets top="12" left="12" right="12" bottom="12"/>
+
+            <!-- Ligne 1 : ISBN + Titre -->
+            <Label text="ISBN *" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+            <TextField fx:id="txtISBN" promptText="Ex: 978-2-07-036024-5"
+                       GridPane.rowIndex="0" GridPane.columnIndex="1" prefWidth="200">
+                <tooltip><Tooltip text="Code ISBN unique du livre"/></tooltip>
+            </TextField>
+
+            <Label text="Titre *" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+            <TextField fx:id="txtTitre" promptText="Titre du livre"
+                       GridPane.rowIndex="0" GridPane.columnIndex="3" prefWidth="200">
+                <tooltip><Tooltip text="Titre complet du livre"/></tooltip>
+            </TextField>
+
+            <!-- Ligne 2 : Auteur + Éditeur -->
+            <Label text="Auteur *" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+            <TextField fx:id="txtAuteur" promptText="Nom de l'auteur"
+                       GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+            <Label text="Éditeur" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+            <TextField fx:id="txtEditeur" promptText="Maison d'édition"
+                       GridPane.rowIndex="1" GridPane.columnIndex="3"/>
+
+            <!-- Ligne 3 : Catégorie + Année -->
+            <Label text="Catégorie" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+            <ComboBox fx:id="cmbCategorie" prefWidth="200"
+                      GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+            <Label text="Année parution" GridPane.rowIndex="2" GridPane.columnIndex="2"/>
+            <Spinner fx:id="spinnerAnnee" min="1800" max="2025" initialValue="2020"
+                     prefWidth="120" GridPane.rowIndex="2" GridPane.columnIndex="3">
+                <tooltip><Tooltip text="Année de parution du livre"/></tooltip>
+            </Spinner>
+
+            <!-- Ligne 4 : Nombre d'exemplaires + Disponible -->
+            <Label text="Exemplaires" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+            <Spinner fx:id="spinnerExemplaires" min="1" max="50" initialValue="1"
+                     prefWidth="120" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+            <Label text="Note (1-5)" GridPane.rowIndex="3" GridPane.columnIndex="2"/>
+            <Slider fx:id="sliderNote" min="1" max="5" value="3"
+                    showTickLabels="true" showTickMarks="true"
+                    snapToTicks="true" blockIncrement="1"
+                    prefWidth="160" GridPane.rowIndex="3" GridPane.columnIndex="3">
+                <tooltip><Tooltip text="Note du livre de 1 à 5"/></tooltip>
+            </Slider>
+
+            <!-- Ligne 5 : Disponible (RadioButtons) -->
+            <Label text="Disponible" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+            <HBox spacing="15" GridPane.rowIndex="4" GridPane.columnIndex="1">
+                <RadioButton fx:id="radioOui" text="Oui"/>
+                <RadioButton fx:id="radioNon" text="Non"/>
+            </HBox>
+
+            <Label text="Numérique" GridPane.rowIndex="4" GridPane.columnIndex="2"/>
+            <CheckBox fx:id="checkNumerique" text="Version numérique disponible"
+                      GridPane.rowIndex="4" GridPane.columnIndex="3"/>
+
+            <!-- Ligne 6 : Description -->
+            <Label text="Description" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+            <TextArea fx:id="txtDescription" prefRowCount="3" wrapText="true"
+                      prefWidth="580"
+                      GridPane.rowIndex="5" GridPane.columnIndex="1"
+                      GridPane.columnSpan="3"/>
+
+            <!-- Ligne 7 : Date d'ajout + Couleur -->
+            <Label text="Date d'ajout" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+            <DatePicker fx:id="datePicker"
+                        GridPane.rowIndex="6" GridPane.columnIndex="1">
+                <tooltip><Tooltip text="Date d'ajout à la bibliothèque"/></tooltip>
+            </DatePicker>
+
+            <Label text="Couleur étiquette" GridPane.rowIndex="6" GridPane.columnIndex="2"/>
+            <ColorPicker fx:id="colorPicker"
+                         GridPane.rowIndex="6" GridPane.columnIndex="3"/>
+
+            <!-- Boutons action -->
+            <HBox spacing="10" GridPane.rowIndex="7" GridPane.columnIndex="1"
+                  GridPane.columnSpan="3">
+                <Button text="💾 Enregistrer" styleClass="btn-primary" onAction="#saveLivre"/>
+                <Button text="🗑 Supprimer" styleClass="btn-danger" onAction="#deleteLivre"/>
+                <Button text="📤 Importer CSV" styleClass="btn-secondary" onAction="#importerCSV"/>
+                <Button text="🔄 Vider" styleClass="btn-secondary" onAction="#clearForm"/>
+            </HBox>
+        </GridPane>
+    </TitledPane>
+</Accordion>
+
+<!-- TableView livres -->
+<TableView fx:id="tableLivres" VBox.vgrow="ALWAYS">
+    <columns>
+        <TableColumn fx:id="colISBN"        text="ISBN"         prefWidth="150"/>
+        <TableColumn fx:id="colTitre"       text="Titre"        prefWidth="200"/>
+        <TableColumn fx:id="colAuteur"      text="Auteur"       prefWidth="150"/>
+        <TableColumn fx:id="colCategorie"   text="Catégorie"    prefWidth="110"/>
+        <TableColumn fx:id="colAnnee"       text="Année"        prefWidth="70"/>
+        <TableColumn fx:id="colExemplaires" text="Exemplaires"  prefWidth="100"/>
+        <TableColumn fx:id="colNote"        text="Note"         prefWidth="70"/>
+        <TableColumn fx:id="colDispo"       text="Disponible"   prefWidth="90"/>
+    </columns>
+    <placeholder>
+        <Label text="Aucun livre trouvé"/>
+    </placeholder>
+</TableView>
+
+<!-- Barre inférieure : stats rapides -->
+<HBox spacing="20" alignment="CENTER_LEFT">
+    <Label text="Taux de disponibilité :"/>
+    <ProgressBar fx:id="progressDispo" prefWidth="180" prefHeight="16"/>
+    <Label fx:id="lblTauxDispo" text="0%"/>
+    <Separator orientation="VERTICAL"/>
+    <Label fx:id="lblTotalLivres" text="Total : 0 livres"/>
+    <Label fx:id="lblTotalDispo" text="Disponibles : 0"/>
+</HBox>
+</VBox><?xml version="1.0" encoding="UTF-8"?>
+        <?import javafx.scene.layout.*?>
+        <?import javafx.scene.control.*?>
+        <?import javafx.geometry.Insets?>
+
+<VBox xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controllers.LivreController"
+      spacing="12" styleClass="content-area">
+<Insets top="15" left="15" right="15" bottom="15"/>
+
+<!-- Titre -->
+<HBox alignment="CENTER_LEFT" spacing="15">
+    <Label text="📖 Gestion des Livres" styleClass="section-title"/>
+    <ProgressIndicator fx:id="loadingIndicator" prefWidth="24" prefHeight="24" visible="false"/>
+</HBox>
+
+<!-- Barre recherche + filtres -->
+<HBox spacing="10" alignment="CENTER_LEFT">
+    <TextField fx:id="searchField" promptText="🔍 Rechercher un livre..."
+               prefWidth="250" onKeyReleased="#onSearch">
+        <tooltip><Tooltip text="Recherche par titre, auteur ou ISBN"/></tooltip>
+    </TextField>
+    <ComboBox fx:id="filterCategorie" promptText="Catégorie..." prefWidth="150" onAction="#onSearch"/>
+    <ComboBox fx:id="filterDisponible" promptText="Disponibilité..." prefWidth="150" onAction="#onSearch"/>
+    <Button text="🔄 Réinitialiser" styleClass="btn-secondary" onAction="#resetFiltres"/>
+</HBox>
+
+<!-- Accordion formulaire -->
+<Accordion>
+    <TitledPane fx:id="formPane" text="➕ Ajouter / Modifier un livre" expanded="false">
+        <GridPane hgap="15" vgap="10">
+            <Insets top="12" left="12" right="12" bottom="12"/>
+
+            <!-- Ligne 1 : ISBN + Titre -->
+            <Label text="ISBN *" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+            <TextField fx:id="txtISBN" promptText="Ex: 978-2-07-036024-5"
+                       GridPane.rowIndex="0" GridPane.columnIndex="1" prefWidth="200">
+                <tooltip><Tooltip text="Code ISBN unique du livre"/></tooltip>
+            </TextField>
+
+            <Label text="Titre *" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+            <TextField fx:id="txtTitre" promptText="Titre du livre"
+                       GridPane.rowIndex="0" GridPane.columnIndex="3" prefWidth="200">
+                <tooltip><Tooltip text="Titre complet du livre"/></tooltip>
+            </TextField>
+
+            <!-- Ligne 2 : Auteur + Éditeur -->
+            <Label text="Auteur *" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+            <TextField fx:id="txtAuteur" promptText="Nom de l'auteur"
+                       GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+            <Label text="Éditeur" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+            <TextField fx:id="txtEditeur" promptText="Maison d'édition"
+                       GridPane.rowIndex="1" GridPane.columnIndex="3"/>
+
+            <!-- Ligne 3 : Catégorie + Année -->
+            <Label text="Catégorie" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+            <ComboBox fx:id="cmbCategorie" prefWidth="200"
+                      GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+            <Label text="Année parution" GridPane.rowIndex="2" GridPane.columnIndex="2"/>
+            <Spinner fx:id="spinnerAnnee" min="1800" max="2025" initialValue="2020"
+                     prefWidth="120" GridPane.rowIndex="2" GridPane.columnIndex="3">
+                <tooltip><Tooltip text="Année de parution du livre"/></tooltip>
+            </Spinner>
+
+            <!-- Ligne 4 : Nombre d'exemplaires + Disponible -->
+            <Label text="Exemplaires" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+            <Spinner fx:id="spinnerExemplaires" min="1" max="50" initialValue="1"
+                     prefWidth="120" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+            <Label text="Note (1-5)" GridPane.rowIndex="3" GridPane.columnIndex="2"/>
+            <Slider fx:id="sliderNote" min="1" max="5" value="3"
+                    showTickLabels="true" showTickMarks="true"
+                    snapToTicks="true" blockIncrement="1"
+                    prefWidth="160" GridPane.rowIndex="3" GridPane.columnIndex="3">
+                <tooltip><Tooltip text="Note du livre de 1 à 5"/></tooltip>
+            </Slider>
+
+            <!-- Ligne 5 : Disponible (RadioButtons) -->
+            <Label text="Disponible" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+            <HBox spacing="15" GridPane.rowIndex="4" GridPane.columnIndex="1">
+                <RadioButton fx:id="radioOui" text="Oui"/>
+                <RadioButton fx:id="radioNon" text="Non"/>
+            </HBox>
+
+            <Label text="Numérique" GridPane.rowIndex="4" GridPane.columnIndex="2"/>
+            <CheckBox fx:id="checkNumerique" text="Version numérique disponible"
+                      GridPane.rowIndex="4" GridPane.columnIndex="3"/>
+
+            <!-- Ligne 6 : Description -->
+            <Label text="Description" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+            <TextArea fx:id="txtDescription" prefRowCount="3" wrapText="true"
+                      prefWidth="580"
+                      GridPane.rowIndex="5" GridPane.columnIndex="1"
+                      GridPane.columnSpan="3"/>
+
+            <!-- Ligne 7 : Date d'ajout + Couleur -->
+            <Label text="Date d'ajout" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+            <DatePicker fx:id="datePicker"
+                        GridPane.rowIndex="6" GridPane.columnIndex="1">
+                <tooltip><Tooltip text="Date d'ajout à la bibliothèque"/></tooltip>
+            </DatePicker>
+
+            <Label text="Couleur étiquette" GridPane.rowIndex="6" GridPane.columnIndex="2"/>
+            <ColorPicker fx:id="colorPicker"
+                         GridPane.rowIndex="6" GridPane.columnIndex="3"/>
+
+            <!-- Boutons action -->
+            <HBox spacing="10" GridPane.rowIndex="7" GridPane.columnIndex="1"
+                  GridPane.columnSpan="3">
+                <Button text="💾 Enregistrer" styleClass="btn-primary" onAction="#saveLivre"/>
+                <Button text="🗑 Supprimer" styleClass="btn-danger" onAction="#deleteLivre"/>
+                <Button text="📤 Importer CSV" styleClass="btn-secondary" onAction="#importerCSV"/>
+                <Button text="🔄 Vider" styleClass="btn-secondary" onAction="#clearForm"/>
+            </HBox>
+        </GridPane>
+    </TitledPane>
+</Accordion>
+
+<!-- TableView livres -->
+<TableView fx:id="tableLivres" VBox.vgrow="ALWAYS">
+    <columns>
+        <TableColumn fx:id="colISBN"        text="ISBN"         prefWidth="150"/>
+        <TableColumn fx:id="colTitre"       text="Titre"        prefWidth="200"/>
+        <TableColumn fx:id="colAuteur"      text="Auteur"       prefWidth="150"/>
+        <TableColumn fx:id="colCategorie"   text="Catégorie"    prefWidth="110"/>
+        <TableColumn fx:id="colAnnee"       text="Année"        prefWidth="70"/>
+        <TableColumn fx:id="colExemplaires" text="Exemplaires"  prefWidth="100"/>
+        <TableColumn fx:id="colNote"        text="Note"         prefWidth="70"/>
+        <TableColumn fx:id="colDispo"       text="Disponible"   prefWidth="90"/>
+    </columns>
+    <placeholder>
+        <Label text="Aucun livre trouvé"/>
+    </placeholder>
+</TableView>
+
+<!-- Barre inférieure : stats rapides -->
+<HBox spacing="20" alignment="CENTER_LEFT">
+    <Label text="Taux de disponibilité :"/>
+    <ProgressBar fx:id="progressDispo" prefWidth="180" prefHeight="16"/>
+    <Label fx:id="lblTauxDispo" text="0%"/>
+    <Separator orientation="VERTICAL"/>
+    <Label fx:id="lblTotalLivres" text="Total : 0 livres"/>
+    <Label fx:id="lblTotalDispo" text="Disponibles : 0"/>
+</HBox>
+</VBox>

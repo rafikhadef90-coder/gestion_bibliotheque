@@ -56,3 +56,4 @@ src/main/resources/com/bibliotheque/
 - Export CSV via FileChooser
 - Tableau de bord statistiques
 - Interface moderne avec sidebar de navigation
+- lien de vedeo de demonstration : https://drive.google.com/file/d/1iAz8uLbZloDp5Hw0577cZAgPKthcuxtt/view?usp=drive_link
